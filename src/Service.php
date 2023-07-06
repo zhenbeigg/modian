@@ -8,15 +8,18 @@
  */
 namespace Eykj\Modian;
 
-use Hyperf\Di\Annotation\Inject;
 use Eykj\Base\GuzzleHttp;
 use function Hyperf\Support\env;
 
 class Service
 {
-    
-    #[Inject]
-    protected GuzzleHttp $GuzzleHttp;
+    protected ?GuzzleHttp $GuzzleHttp;
+
+    // 通过设置参数为 nullable，表明该参数为一个可选参数
+    public function __construct(?GuzzleHttp $GuzzleHttp)
+    {
+        $this->GuzzleHttp = $GuzzleHttp;
+    }
     /**
      * @author: 布尔
      * @name: 获取access_token
