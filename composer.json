@@ -1,0 +1,18 @@
+{
+    "name": "eykj/modian",
+    "description": "一一科技魔点组件",
+    "license": "MIT",
+    "keywords": [
+        "eykj",
+        "modian"
+    ],
+    "require": {
+    },
+    "autoload": {
+        "psr-4": {
+            "Eykj\\Modian\\": "src/"
+        },
+        "files": [
+        ]
+    }
+}
