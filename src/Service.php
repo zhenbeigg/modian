@@ -35,7 +35,7 @@ class Service
     public function get_app_token(array $param): string
     {
         /* 检测是正式环境还是测试环境 */
-        if(env('SERVE_ENV','') != 'release'){
+        if(!env('RELEASE_ENV','')){
             $r = $this->GuzzleHttp->get($this->url . '/modian/get_app_token');
             return $r['result'];
         }
