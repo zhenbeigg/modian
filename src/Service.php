@@ -4,21 +4,27 @@
  * @author: 布尔
  * @name: 魔点service服务
  * @desc: 介绍
- * @LastEditTime: 2023-07-06 14:26:38
+ * @LastEditTime: 2023-08-02 10:02:32
  */
 namespace Eykj\Modian;
 
 use Eykj\Base\GuzzleHttp;
+use App\Model\ModianAuth;
 use function Hyperf\Support\env;
 
 class Service
 {
     protected ?GuzzleHttp $GuzzleHttp;
 
+    protected ?ModianAuth $ModianAuth;
+
+    protected $url = 'https://device.qixuw.com';
+
     // 通过设置参数为 nullable，表明该参数为一个可选参数
-    public function __construct(?GuzzleHttp $GuzzleHttp)
+    public function __construct(?GuzzleHttp $GuzzleHttp, ?ModianAuth $ModianAuth)
     {
         $this->GuzzleHttp = $GuzzleHttp;
+        $this->ModianAuth = $ModianAuth;
     }
     /**
      * @author: 布尔
@@ -26,8 +32,13 @@ class Service
      * @param array $param
      * @return string $app_token appToken
      */
-    public function get_app_token(array $param) : string
+    public function get_app_token(array $param): string
     {
+        /* 检测是正式环境还是测试环境 */
+        if(env('SERVE_ENV','') != 'release'){
+            $r = $this->GuzzleHttp->get($this->url . '/modian/get_app_token');
+            return $r['result'];
+        }
         $key = 'modian_app_token';
         if (!redis()->get($key)) {
             /* 获取配置参数 */
@@ -40,14 +51,14 @@ class Service
                 $app_token = $r["data"]["appToken"];
                 redis()->set($key, $app_token, $r["data"]["expires"]);
             } else {
-                logger()->error('获取魔点appToken', $r);
-                return false;
+                return '';
             }
         } else {
             $app_token = redis()->get($key);
         }
         return $app_token;
     }
+
     /**
      * @author: 布尔
      * @name: 机构授权
@@ -68,23 +79,47 @@ class Service
         }
         return $r["data"];
     }
+
     /**
      * @author: 布尔
      * @name: 获取accessToken
      * @param array $param
      * @return string
      */
-    public function get_access_token(array $param) : string
+    public  function get_access_token(array $param): string
     {
-        return 'ok';
+        $key = $param['corpid'] . '_modian_access_token';
+        if (!redis()->get($key)) {
+            /* 获取appToken */
+            $app_token = $this->get_app_token($param);
+            /* 获取配置参数 */
+            $modian_url = env('MODIAN_URL', '');
+            /* 获取魔点授权企业信息 */
+            $filter = eyc_array_key($param, 'corpid');
+            $info = $this->ModianAuth->get_info($filter);
+            $url = $modian_url . '/app/getOrgAccessToken?appToken=' . $app_token . '&orgAuthKey=' . $info["org_auth_key"] . '&orgId=' . $info["org_id"];
+            $r = $this->GuzzleHttp->get($url);
+            if ($r["result"] == 0) {
+                $access_token = $r["data"]["accessToken"];
+                redis()->set($key, $access_token, $r["data"]["expires"]);
+            } else {
+                logger()->error('获取魔点accessToken', $r);
+                return false;
+            }
+        } else {
+            $access_token = redis()->get($key);
+        }
+        return $access_token;
     }
+
+
     /**
      * @author: 布尔
      * @name: 获取企业accessToken
      * @param array $param
      * @return string
      */
-    public function get_org_access_token(array $param) : string
+    public  function get_org_access_token(array $param): string
     {
         $key = $param['org_id'] . '_modian_org_access_token';
         if (!redis()->get($key)) {
@@ -104,13 +139,14 @@ class Service
         }
         return $access_token;
     }
+
     /**
      * @author: 布尔
      * @name:  授权验签
      * @param array $param
      * @return bool $r 验证结果
      */
-    public function org_check_sign(array $param) : bool
+    public function org_check_sign(array $param): bool
     {
         $bodyMd5 = MD5(json_encode($param['body'], 320));
         $str = $param['nonce'] . $param['signVersion'] . $param['timestamp'] . $bodyMd5;
@@ -121,13 +157,14 @@ class Service
         }
         return false;
     }
+
     /**
      * @author: 布尔
      * @name:  三方鉴权验签
      * @param array $param
      * @return bool $r 验证结果
      */
-    public function recognize_check_sign(array $param) : bool
+    public function recognize_check_sign(array $param): bool
     {
         $bodyMd5 = MD5(json_encode($param['body'], 320));
         $str = $param['nonce'] . $param['org_id'] . $param['deviceSn'] . $param['signVersion'] . $param['timestamp'] . $bodyMd5;
@@ -137,13 +174,14 @@ class Service
         }
         return false;
     }
+
     /**
      * @author: 布尔
      * @name:  开门验签
      * @param array $param
      * @return string $r 验证结果
      */
-    public function rec_check_sign(array $param) : string
+    public function rec_check_sign(array $param): string
     {
         $bodyMd5 = MD5(json_encode($param['body'], 320));
         $str = $param['nonce'] . $param['org_id'] . $param['signVersion'] . $param['timestamp'] . $bodyMd5;
