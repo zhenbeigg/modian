@@ -4,7 +4,7 @@
  * @author: 布尔
  * @name: 访客
  * @desc: 介绍
- * @LastEditTime: 2023-07-06 14:27:06
+ * @LastEditTime: 2023-08-03 15:26:20
  */
 namespace Eykj\Modian;
 
@@ -152,4 +152,24 @@ class Visitor
         $data = eyc_array_key($param, 'appointmentId');
         return $this->GuzzleHttp->post($url, $data);
     }
+    /**
+     * 获取访客详情
+     */
+    public function get_record_info(array $param)
+    {
+        /* 查询魔点access_token */
+        $access_token = $this->Service->get_access_token($param);
+        /* 获取配置参数 */
+        $modian_url = env('MODIAN_URL', '');
+        $url = $modian_url . '/visitor/getRecordInfo?accessToken=' . $access_token . "&appointmentId=" . $param["appointmentId"];
+        $r = $this->GuzzleHttp->get($url);
+        if ($r["result"] == 0) {
+            return $r["data"]["dingUserId"];
+        } else {
+            echo json_encode($r);
+            echo "访客验证失败,来访码:" . $param["appointmentId"] . "\\ln";
+            return false;
+        }
+    }
+
 }
