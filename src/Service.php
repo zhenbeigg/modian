@@ -4,7 +4,7 @@
  * @author: 布尔
  * @name: 魔点service服务
  * @desc: 介绍
- * @LastEditTime: 2023-08-02 10:02:32
+ * @LastEditTime: 2023-09-11 16:48:30
  */
 namespace Eykj\Modian;
 
@@ -74,7 +74,7 @@ class Service
         $url = $modian_url . '/app/authOrgByExtra?appToken=' . $app_token;
         $data['corpId'] = $param['corpid'];
         $r = $this->GuzzleHttp->post($url, $data);
-        if ($r['errcode'] != 0) {
+        if ($r['result'] != 0) {
             return $r;
         }
         return $r["data"];
