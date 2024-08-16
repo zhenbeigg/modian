@@ -6,6 +6,7 @@
  * @desc: 介绍
  * @LastEditTime: 2023-07-06 14:25:20
  */
+
 namespace Eykj\Modian;
 
 use Eykj\Base\GuzzleHttp;
@@ -30,7 +31,7 @@ class Callback
      * @param array $param
      * @return array
      */
-    public function addOrgCallback(array $param) : array
+    public function addOrgCallback(array $param): array
     {
         /* 查询魔点access_token */
         $access_token = $this->Service->get_access_token($param);
@@ -47,7 +48,7 @@ class Callback
      * @param array $param
      * @return array 
      */
-    public function updateOrgCallback(array $param) : array
+    public function updateOrgCallback(array $param): array
     {
         /* 查询魔点access_token */
         $access_token = $this->Service->get_access_token($param);
@@ -64,7 +65,7 @@ class Callback
      * @param {array} $param
      * @return array
      */
-    public function deleteOrgCallback(array $param) : array
+    public function deleteOrgCallback(array $param): array
     {
         /* 查询魔点access_token */
         $access_token = $this->Service->get_access_token($param);
@@ -80,7 +81,7 @@ class Callback
      * @param {array} $param
      * @return array
      */
-    public function updateOrgCallbackFileTransfer(array $param) : array
+    public function updateOrgCallbackFileTransfer(array $param): array
     {
         /* 查询魔点access_token */
         $access_token = $this->Service->get_access_token($param);
@@ -88,9 +89,9 @@ class Callback
         $modian_url = env('MODIAN_URL', '');
         $url = $modian_url . '/callback/updateOrgCallbackFileTransfer?accessToken=' . $access_token;
         $data['callbackFileTransferType'] = $param['callback_file_transfer_type'];
-        $data['ossBucket'] = env('ALIYUN_ACM_BUCKET');
-        $data['ossAccessKeyId'] = env('ALIYUN_ACM_AK');
-        $data['ossSecretAccessKey'] = env('ALIYUN_ACM_SK');
+        $data['ossBucket'] = env('ALIYUN_OSS_BUCKET');
+        $data['ossAccessKeyId'] = env('ALIYUN_OSS_AK');
+        $data['ossSecretAccessKey'] = env('ALIYUN_OSS_SK');
         return $this->GuzzleHttp->post($url, $data);
     }
 }
