@@ -4,7 +4,7 @@
  * @author: 布尔
  * @name: 魔点service服务
  * @desc: 介绍
- * @LastEditTime: 2023-09-11 16:48:30
+ * @LastEditTime: 2024-09-20 17:27:02
  */
 
 namespace Eykj\Modian;
@@ -88,7 +88,7 @@ class Service
      */
     public function get_access_token(array $param): string
     {
-        return $this->DeviceInterface->get_access_token('Dtalk', $param);
+        return $this->DeviceInterface->get_access_token('Modian', $param);
     }
 
     /**
