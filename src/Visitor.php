@@ -6,6 +6,7 @@
  * @desc: 介绍
  * @LastEditTime: 2023-08-03 15:26:20
  */
+
 namespace Eykj\Modian;
 
 use Eykj\Base\GuzzleHttp;
@@ -30,7 +31,7 @@ class Visitor
      * @param array $param
      * @return array
      */
-    public function appointment_create(array $param) : array
+    public function appointment_create(array $param): array
     {
         /* 查询魔点access_token */
         $access_token = $this->Service->get_access_token($param);
@@ -46,7 +47,7 @@ class Visitor
      * @param array $param
      * @return array 
      */
-    public function appointment_cancel(array $param) : array
+    public function appointment_cancel(array $param): array
     {
         /* 查询魔点access_token */
         $access_token = $this->Service->get_access_token($param);
@@ -62,7 +63,7 @@ class Visitor
      * @param {array} $param
      * @return array
      */
-    public function address_create(array $param) : array
+    public function address_create(array $param): array
     {
         /* 查询魔点access_token */
         $access_token = $this->Service->get_access_token($param);
@@ -78,7 +79,7 @@ class Visitor
      * @param {array} $param
      * @return array
      */
-    public function address_update(array $param) : array
+    public function address_update(array $param): array
     {
         /* 查询魔点access_token */
         $access_token = $this->Service->get_access_token($param);
@@ -94,7 +95,7 @@ class Visitor
      * @param {array} $param
      * @return array
      */
-    public function address_delete(array $param) : array
+    public function address_delete(array $param): array
     {
         /* 查询魔点access_token */
         $access_token = $this->Service->get_access_token($param);
@@ -110,7 +111,7 @@ class Visitor
      * @param {array} $param
      * @return array
      */
-    public function address_listAll(array $param) : array
+    public function address_listAll(array $param): array
     {
         /* 查询魔点access_token */
         $access_token = $this->Service->get_access_token($param);
@@ -125,7 +126,7 @@ class Visitor
      * @param {array} $param
      * @return array
      */
-    public function face_upload(array $param) : array
+    public function face_upload(array $param): array
     {
         /* 查询魔点access_token */
         $access_token = $this->Service->get_access_token($param);
@@ -142,7 +143,7 @@ class Visitor
      * @param {array} $param
      * @return array
      */
-    public function face_complete(array $param) : array
+    public function face_complete(array $param): array
     {
         /* 查询魔点access_token */
         $access_token = $this->Service->get_access_token($param);
@@ -162,14 +163,6 @@ class Visitor
         /* 获取配置参数 */
         $modian_url = env('MODIAN_URL', '');
         $url = $modian_url . '/visitor/getRecordInfo?accessToken=' . $access_token . "&appointmentId=" . $param["appointmentId"];
-        $r = $this->GuzzleHttp->get($url);
-        if ($r["result"] == 0) {
-            return $r["data"]["dingUserId"];
-        } else {
-            echo json_encode($r);
-            echo "访客验证失败,来访码:" . $param["appointmentId"] . "\\ln";
-            return false;
-        }
+        return $this->GuzzleHttp->get($url);
     }
-
 }
