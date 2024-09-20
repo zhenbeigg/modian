@@ -6,25 +6,26 @@
  * @desc: 介绍
  * @LastEditTime: 2023-09-11 16:48:30
  */
+
 namespace Eykj\Modian;
 
 use Eykj\Base\GuzzleHttp;
-use App\Model\ModianAuth;
+use Eykj\Base\JsonRpcInterface\DeviceInterface;
 use function Hyperf\Support\env;
 
 class Service
 {
     protected ?GuzzleHttp $GuzzleHttp;
 
-    protected ?ModianAuth $ModianAuth;
+    protected ?DeviceInterface $DeviceInterface;
 
     protected $url = 'https://device.qixuw.com';
 
     // 通过设置参数为 nullable，表明该参数为一个可选参数
-    public function __construct(?GuzzleHttp $GuzzleHttp, ?ModianAuth $ModianAuth)
+    public function __construct(?GuzzleHttp $GuzzleHttp, ?DeviceInterface $DeviceInterface)
     {
         $this->GuzzleHttp = $GuzzleHttp;
-        $this->ModianAuth = $ModianAuth;
+        $this->DeviceInterface = $DeviceInterface;
     }
     /**
      * @author: 布尔
@@ -35,7 +36,7 @@ class Service
     public function get_app_token(array $param): string
     {
         /* 检测是正式环境还是测试环境 */
-        if(!env('RELEASE_ENV','')){
+        if (!env('RELEASE_ENV', '')) {
             $r = $this->GuzzleHttp->get($this->url . '/modian/get_app_token');
             return $r['result'];
         }
@@ -79,39 +80,16 @@ class Service
         }
         return $r["data"];
     }
-
     /**
      * @author: 布尔
-     * @name: 获取accessToken
+     * @name: 获取access_token
      * @param array $param
      * @return string
      */
-    public  function get_access_token(array $param): string
+    public function get_access_token(array $param): string
     {
-        $key = $param['corpid'] . '_modian_access_token';
-        if (!redis()->get($key)) {
-            /* 获取appToken */
-            $app_token = $this->get_app_token($param);
-            /* 获取配置参数 */
-            $modian_url = env('MODIAN_URL', '');
-            /* 获取魔点授权企业信息 */
-            $filter = eyc_array_key($param, 'corpid');
-            $info = $this->ModianAuth->get_info($filter);
-            $url = $modian_url . '/app/getOrgAccessToken?appToken=' . $app_token . '&orgAuthKey=' . $info["org_auth_key"] . '&orgId=' . $info["org_id"];
-            $r = $this->GuzzleHttp->get($url);
-            if ($r["result"] == 0) {
-                $access_token = $r["data"]["accessToken"];
-                redis()->set($key, $access_token, $r["data"]["expires"]);
-            } else {
-                logger()->error('获取魔点accessToken', $r);
-                return false;
-            }
-        } else {
-            $access_token = redis()->get($key);
-        }
-        return $access_token;
+        return $this->DeviceInterface->get_access_token('Dtalk', $param);
     }
-
 
     /**
      * @author: 布尔
