@@ -4,7 +4,7 @@
  * @author: 布尔
  * @name: 访客
  * @desc: 介绍
- * @LastEditTime: 2023-08-03 15:26:20
+ * @LastEditTime: 2024-09-30 18:22:17
  */
 
 namespace Eykj\Modian;
@@ -38,7 +38,7 @@ class Visitor
         /* 获取配置参数 */
         $modian_url = env('MODIAN_URL', '');
         $url = $modian_url . '/visitor/appointment/create?accessToken=' . $access_token;
-        $data = eyc_array_key($param, 'visitorName,visitorMobile,visitorCompany,licenseNos,startTime,endTime,permitDeviceIds,respondentId,addressId,visitCause,remarks,sendSms');
+        $data = eyc_array_key($param, 'visitorName|name,visitorMobile|mobile,visitorCompany,licenseNos,startTime,endTime,permitDeviceIds,respondentId|userid,addressId|modian_address_id,visitCause|purpose,remarks,sendSms');
         return $this->GuzzleHttp->post($url, $data);
     }
     /**
@@ -54,7 +54,7 @@ class Visitor
         /* 获取配置参数 */
         $modian_url = env('MODIAN_URL', '');
         $url = $modian_url . '/visitor/appointment/cancel?accessToken=' . $access_token;
-        $data = eyc_array_key($param, 'appointmentId');
+        $data = eyc_array_key($param, 'appointmentId|modian_appointment_id');
         return $this->GuzzleHttp->post($url, $data);
     }
     /**
@@ -133,8 +133,18 @@ class Visitor
         /* 获取配置参数 */
         $modian_url = env('MODIAN_URL', '');
         $url = $modian_url . '/visitor/face/upload?accessToken=' . $access_token;
-        $data = eyc_array_key($param, 'appointmentId,face');
+        $arr['name'] = 'appointmentId';
+        $arr['contents'] = $param['appointmentId'];
+        $data[] = $arr;
+        $arr1['name'] = 'face';
+        $arr1['contents'] = fopen($param['face'], 'r+');
+        $data[] = $arr1;
         $r = $this->GuzzleHttp->post($url, $data, [], 'file');
+        if (!isset($param['face_url'])) {
+            if (is_resource($param['face'])) {
+                fclose($param['face']);
+            }
+        }
         return $r;
     }
     /**
