@@ -4,7 +4,7 @@
  * @author: 布尔
  * @name: 魔点service服务
  * @desc: 介绍
- * @LastEditTime: 2024-12-27 11:46:52
+ * @LastEditTime: 2025-01-22 10:14:23
  */
 
 namespace Eykj\Modian;
@@ -36,7 +36,7 @@ class Service
     public function get_app_token(array $param): string
     {
         /* 检测是正式环境还是测试环境 */
-        if (env('APP_ENV', '') == 'prod') {
+        if (!env('RELEASE_ENV', '')) {
             $r = $this->GuzzleHttp->get($this->url . '/modian/get_app_token');
             return $r['result'];
         }
